@@ -107,10 +107,10 @@ void parser::statement() {
 }
 
 void parser::assignment() {
-	symtab::var_type type = _s.find(_l.token_raw());
-	if (type == symtab::undef) {
+	symbol::var_type type = _s.find(_l.token_raw()).type();
+	if (type == symbol::undef) {
 		identifier_undef_error(_l.line_no());
-	} else if (type == symtab::constant) {
+	} else if (type == symbol::constant) {
 		const_assign_error(_l.line_no());
 	}
 	match();
@@ -181,7 +181,7 @@ void parser::factor() {
 	} else if (_l.token() == lexer::number_tok) {
 		number();
 	} else if (_l.token() == lexer::id_tok) {
-		if (_s.find(_l.token_raw()) == symtab::undef) {
+		if (_s.find(_l.token_raw()).type() == symbol::undef) {
 			identifier_undef_error(_l.line_no());
 		} else {
 			match();
