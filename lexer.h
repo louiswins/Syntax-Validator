@@ -16,7 +16,7 @@ public:
 
 	bool good() const { return !is_error && std::cin.good(); }
 
-	std::string token();
+	const std::string& token();
 
 	unsigned line_no() const { return _line_no; }
 
@@ -30,7 +30,8 @@ public:
 private:
 	void discard_whitespace() {
 		int c;
-		while ((c = std::cin.peek()) == ' ' || c == '\t') {
+		while ((c = std::cin.peek()) == ' ' || c == '\t' || c == '\n') {
+			if (c == '\n') { ++_line_no; }
 			std::cin.get();
 		}
 	}
