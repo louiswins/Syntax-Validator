@@ -3,7 +3,7 @@
 #include <utility>
 #include <string>
 
-symtab::var_type symtab::find(const char *which) const {
+symtab::var_type symtab::find(const std::string& which) const {
 	for (table::const_reverse_iterator i = tab.rbegin(); i != tab.rend(); ++i) {
 		if (i->first == which) {
 			return i->second;
@@ -11,7 +11,7 @@ symtab::var_type symtab::find(const char *which) const {
 	}
 	return undef;
 }
-bool symtab::exists_in_block(const char *which) const {
+bool symtab::exists_in_block(const std::string& which) const {
 	for (table::const_reverse_iterator i = tab.rbegin(); i != tab.rend(); ++i) {
 		if (*i == block) {
 			return false;
@@ -23,7 +23,7 @@ bool symtab::exists_in_block(const char *which) const {
 	return false;
 }
 
-bool symtab::push_item(const char *name, var_type type) {
+bool symtab::push_item(const std::string& name, var_type type) {
 	if (exists_in_block(name)) {
 		return false;
 	}

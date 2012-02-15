@@ -25,13 +25,13 @@ public:
 
 	symtab() {}
 
-	symtab::var_type find(const char *which) const;
-	bool exists_in_block(const char *which) const;
+	symtab::var_type find(const std::string& which) const;
+	bool exists_in_block(const std::string& which) const;
 
-	bool decl_var(const char *name) {
+	bool decl_var(const std::string& name) {
 		return push_item(name, variable);
 	}
-	bool decl_const(const char *name) {
+	bool decl_const(const std::string& name) {
 		return push_item(name, constant);
 	}
 
@@ -46,7 +46,7 @@ public:
 	}
 
 private:
-	bool push_item(const char *name, var_type type);
+	bool push_item(const std::string& name, var_type type);
 };
 
 #endif
