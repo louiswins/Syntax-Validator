@@ -1,4 +1,6 @@
 #include "parser.h"
+#include "symtab.h"
+#include "lexer.h"
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
@@ -191,7 +193,7 @@ bool parser::id_definition(const string& tok) {
 	if (!is_ident(tok)) {
 		syntax_error(_l.line_no());
 	}
-	return _s.exists_in_block(tok);
+	return !_s.exists_in_block(tok);
 }
 symtab::var_type parser::id_lookup(const string& tok) {
 	if (!is_ident(tok)) {
@@ -225,6 +227,7 @@ inline bool parser::is_relop(const string& tok) {
 		tok == ">=");
 }
 inline bool parser::is_ident(const string& tok) {
+	if (tok.length() == 0) return false;
 	if (is_reserved_word(tok)) return false;
 	for (string::const_iterator i = tok.begin(); i != tok.end(); ++i) {
 		if (!isalpha(*i)) return false;
@@ -248,6 +251,7 @@ bool parser::match(const char *tok) {
 		return true;
 	} else {
 		syntax_error(_l.line_no());
+		return false;
 	}
 }
 bool parser::match() {

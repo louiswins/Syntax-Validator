@@ -12,7 +12,6 @@ $(TARGET): $(OBJS)
 	$(CXX) $(LDFLAGS) $(OBJS) -o $@
 
 main.o: parser.h lexer.h symtab.h
-parser.o: parser.h
-parser.h: lexer.h
+parser.o: parser.h symtab.h lexer.h
 lexer.o: lexer.h
 symtab.o : symtab.h
