@@ -21,7 +21,7 @@ namespace {
 		exit(EXIT_FAILURE);
 	}
 	void const_assign_error(unsigned line_no) {
-		cout << "line " << line_no << "static semantic error - "
+		cout << "line " << line_no << " static semantic error - "
 			"invalid assignment\n";
 	}
 }
@@ -45,9 +45,9 @@ void parser::block() {
 }
 
 void parser::declaration() {
-	if (_l.token() == "var") {
+	if (_l.token() == lexer::var_tok) {
 		variable_declaration();
-	} else if (_l.token() == "const") {
+	} else if (_l.token() == lexer::const_tok) {
 		constant_declaration();
 	} else {
 		syntax_error(_l.line_no());
@@ -55,28 +55,37 @@ void parser::declaration() {
 }
 void parser::variable_declaration() {
 	match("var");
-	if (!id_definition(_l.token())) {
+	if (_l.token() != lexer::id_tok) {
+		syntax_error(_l.line_no());
+	}
+	if (_s.exists_in_block(_l.token_raw())) {
 		identifier_redef_error(_l.line_no());
 	} else {
-		_s.decl_var(_l.token());
+		_s.decl_var(_l.token_raw());
 	}
 	match();
-	while (_l.token() == ",") {
+	while (_l.token() == lexer::comma_tok) {
 		match(",");
-		if (!id_definition(_l.token())) {
+		if (_l.token() != lexer::id_tok) {
+			syntax_error(_l.line_no());
+		}
+		if (_s.exists_in_block(_l.token_raw())) {
 			identifier_redef_error(_l.line_no());
 		} else {
-			_s.decl_var(_l.token());
+			_s.decl_var(_l.token_raw());
 		}
 		match();
 	}
 }
 void parser::constant_declaration() {
 	match("const");
-	if (!id_definition(_l.token())) {
+	if (_l.token() != lexer::id_tok) {
+		syntax_error(_l.line_no());
+	}
+	if (_s.exists_in_block(_l.token_raw())) {
 		identifier_redef_error(_l.line_no());
 	} else {
-		_s.decl_const(_l.token());
+		_s.decl_const(_l.token_raw());
 	}
 	match();
 	match("=");
@@ -84,19 +93,21 @@ void parser::constant_declaration() {
 }
 
 void parser::statement() {
-	if (_l.token() == "print") {
+	if (_l.token() == lexer::id_tok) {
+		assignment();
+	} else if (_l.token() == lexer::print_tok) {
 		print_stmt();
-	} else if (_l.token() == "if") {
+	} else if (_l.token() == lexer::if_tok) {
 		if_stmt();
-	} else if (_l.token() == "do") {
+	} else if (_l.token() == lexer::do_tok) {
 		do_stmt();
 	} else {
-		assignment();
+		syntax_error(_l.line_no());
 	}
 }
 
 void parser::assignment() {
-	symtab::var_type type = id_lookup(_l.token());
+	symtab::var_type type = _s.find(_l.token_raw());
 	if (type == symtab::undef) {
 		identifier_undef_error(_l.line_no());
 	} else if (type == symtab::constant) {
@@ -113,14 +124,14 @@ void parser::print_stmt() {
 }
 void parser::if_stmt() {
 	match("if");
-	while (_l.token() == "do") {
+	while (_l.token() == lexer::do_tok) {
 		do_block();
 	}
 	match("end");
 }
 void parser::do_stmt() {
 	match("loop");
-	while (_l.token() == "do") {
+	while (_l.token() == lexer::do_tok) {
 		do_block();
 	}
 	match("end");
@@ -142,13 +153,13 @@ void parser::expression() {
 }
 void parser::simple() {
 	uni_term();
-	while (_l.token() == "&") {
+	while (_l.token() == lexer::amp_tok) {
 		match();
 		uni_term();
 	}
 }
 void parser::uni_term() {
-	if (_l.token() == "%") {
+	if (_l.token() == lexer::per_tok) {
 		match();
 		uni_term();
 	} else {
@@ -157,29 +168,31 @@ void parser::uni_term() {
 }
 void parser::term() {
 	factor();
-	if (_l.token() == "@") {
+	if (_l.token() == lexer::at_tok) {
 		match();
 		term();
 	}
 }
 void parser::factor() {
-	if (_l.token() == "(") {
+	if (_l.token() == lexer::lparen_tok) {
 		match();
 		expression();
 		match(")");
-	} else if (is_number(_l.token())) {
+	} else if (_l.token() == lexer::number_tok) {
 		number();
-	} else if (is_ident(_l.token())) {
-		if (id_lookup(_l.token()) == symtab::undef) {
+	} else if (_l.token() == lexer::id_tok) {
+		if (_s.find(_l.token_raw()) == symtab::undef) {
 			identifier_undef_error(_l.line_no());
 		} else {
 			match();
 		}
+	} else {
+		syntax_error(_l.line_no());
 	}
 }
 
 void parser::number() {
-	if (!is_number(_l.token())) {
+	if (_l.token() != lexer::number_tok) {
 		syntax_error(_l.line_no());
 	} else {
 		// sillily, we don't even do anything with it yet.
@@ -189,64 +202,26 @@ void parser::number() {
 
 
 
-bool parser::id_definition(const string& tok) {
-	if (!is_ident(tok)) {
-		syntax_error(_l.line_no());
-	}
-	return !_s.exists_in_block(tok);
+inline bool parser::is_declaration(lexer::tok_type tok) {
+	return (tok == lexer::var_tok || tok == lexer::const_tok);
 }
-symtab::var_type parser::id_lookup(const string& tok) {
-	if (!is_ident(tok)) {
-		syntax_error(_l.line_no());
-	}
-	return _s.find(tok);
+inline bool parser::is_statement(lexer::tok_type tok) {
+	return (tok == lexer::id_tok    ||
+		tok == lexer::print_tok ||
+		tok == lexer::if_tok    ||
+		tok == lexer::do_tok);
 }
-
-inline bool parser::is_reserved_word(const string& tok) {
-	return (tok == "const" ||
-		tok == "do"    ||
-		tok == "end"   ||
-		tok == "loop"  ||
-		tok == "var");
-}
-inline bool parser::is_declaration(const string& tok) {
-	return (tok == "var" || tok == "const");
-}
-inline bool parser::is_statement(const string& tok) {
-	return (tok == "print" ||
-		tok == "if"    ||
-		tok == "do"    ||
-		is_ident(tok));
-}
-inline bool parser::is_relop(const string& tok) {
-	return (tok == "="  ||
-		tok == "<"  ||
-		tok == ">"  ||
-		tok == "/=" ||
-		tok == "<=" ||
-		tok == ">=");
-}
-inline bool parser::is_ident(const string& tok) {
-	if (tok.length() == 0) return false;
-	if (is_reserved_word(tok)) return false;
-	for (string::const_iterator i = tok.begin(); i != tok.end(); ++i) {
-		if (!isalpha(*i)) return false;
-	}
-	return true;
-}
-
-bool parser::is_number(const string& tok) {
-	int ret;
-	if (!(istringstream(_l.token()) >> ret)) {
-		return false;
-	}
-	return true;
+inline bool parser::is_relop(lexer::tok_type tok) {
+	return (tok == lexer::equal_tok ||
+		tok == lexer::lt_tok    ||
+		tok == lexer::gt_tok    ||
+		tok == lexer::ne_tok    ||
+		tok == lexer::le_tok    ||
+		tok == lexer::ge_tok);
 }
 
 bool parser::match(const char *tok) {
-	// lexical error
-	if (!_l.good()) return false;
-	if (tok == _l.token()) {
+	if (tok == _l.token_raw()) {
 		_l.getToken();
 		return true;
 	} else {
@@ -255,7 +230,6 @@ bool parser::match(const char *tok) {
 	}
 }
 bool parser::match() {
-	if (!_l.good()) return false;
 	_l.getToken();
 	return true;
 }

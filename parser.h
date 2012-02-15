@@ -30,15 +30,9 @@ private:
 	void factor();
 	void number();
 
-	bool id_definition(const std::string& tok);
-	symtab::var_type id_lookup(const std::string& tok);
-
-	bool is_reserved_word(const std::string& tok);
-	bool is_declaration(const std::string& tok);
-	bool is_statement(const std::string& tok);
-	bool is_relop(const std::string& tok);
-	bool is_ident(const std::string& tok);
-	bool is_number(const std::string& tok);
+	bool is_declaration(lexer::tok_type tok);
+	bool is_statement(lexer::tok_type tok);
+	bool is_relop(lexer::tok_type tok);
 	bool match(const char *tok);
 	bool match();
 
