@@ -1,10 +1,14 @@
 #include "parser.h"
-#include "lexer.h"
 #include <iostream>
-#include <tr1/memory>
 using namespace std;
 
 
 int main() {
+	parser p;
+
+	p.verify_program();
+
+	cout << "Hey! We finished!\n";
+
 	return 0;
 }
