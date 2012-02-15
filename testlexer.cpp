@@ -6,7 +6,7 @@ int main() {
 	lexer l;
 
 	while (l.hasToken()) {
-		cout << "got token '" << l.token() << "'\n";
+		cout << "got token '" << l.token_raw() << "'\n";
 		l.getToken();
 	}
 
