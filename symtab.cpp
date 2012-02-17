@@ -1,5 +1,4 @@
 #include "symtab.h"
-#include <vector>
 #include <string>
 
 const symbol symtab::find(const std::string& which) const {

@@ -1,7 +1,7 @@
 #ifndef SYMTAB_H
 #define SYMTAB_H
 
-#include <vector>
+#include <deque>
 #include <string>
 
 class symbol {
@@ -37,7 +37,7 @@ private:
 
 class symtab {
 private:
-	typedef std::vector<symbol> table;
+	typedef std::deque<symbol> table;
 
 	static const symbol block;
 	table tab;
