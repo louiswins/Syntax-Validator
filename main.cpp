@@ -8,7 +8,5 @@ int main() {
 
 	p.verify_program();
 
-	cout << "Hey! We finished!\n";
-
 	return 0;
 }
