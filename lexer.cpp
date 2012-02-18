@@ -6,10 +6,10 @@ using namespace std;
 
 namespace {
 	void illegal_tok_error(unsigned line_no) {
-		cout << "line " << line_no << " lexical error - illegal tokens\n";
+		cout << "line " << line_no << ": lexical error - illegal tokens\n";
 	}
 	void too_long_error(unsigned line_no) {
-		cout << "line " << line_no << " lexical error - exceeding maximum token length\n";
+		cout << "line " << line_no << ": lexical error - exceeding maximum token length\n";
 	}
 }
 

@@ -8,20 +8,20 @@ using namespace std;
 
 namespace {
 	void syntax_error(unsigned line_no) {
-		cout << "line " << line_no << " syntax error\n";
+		cout << "line " << line_no << ": syntax error\n";
 		exit(EXIT_FAILURE);
 	}
 	void identifier_redef_error(unsigned line_no) {
-		cout << "line " << line_no << " static semantic error - "
+		cout << "line " << line_no << ": static semantic error - "
 			"identifier redefined\n";
 	}
 	void identifier_undef_error(unsigned line_no) {
-		cout << "line " << line_no << " static semantic error - "
+		cout << "line " << line_no << ": static semantic error - "
 			"identifier undefined\n";
 		exit(EXIT_FAILURE);
 	}
 	void const_assign_error(unsigned line_no) {
-		cout << "line " << line_no << " static semantic error - "
+		cout << "line " << line_no << ": static semantic error - "
 			"invalid assignment\n";
 	}
 }
