@@ -47,7 +47,7 @@ public:
 
 	symtab() {}
 
-	symbol find(const std::string& which) const;
+	const symbol& find(const std::string& which) const;
 	bool exists_in_block(const std::string& which) const;
 
 	bool decl_var(const std::string& name) {

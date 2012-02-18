@@ -3,31 +3,21 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include "symtab.h"
+using namespace std;
 using boost::lambda::bind;
 using boost::lambda::_1;
 
-// Here we search through all possibilities, so we can use the stl find_if.
-symbol symtab::find(const std::string& which) const {
-	table::const_reverse_iterator result = std::find_if(tab.rbegin(), tab.rend(),
+// Easily located using std::find_if and boost::lambda
+const symbol& symtab::find(const string& which) const {
+	static symbol bad_return = symbol("", symbol::undef);
+	table::const_reverse_iterator result = find_if(tab.rbegin(), tab.rend(),
 			bind(&symbol::name, _1) == which);
-	return (result == tab.rend()) ?
-		symbol("", symbol::undef) :
-		*result;
+	return (result == tab.rend()) ? bad_return : *result;
 }
-// Here we bail out partway through, so it is unreasonable to implement in
-// terms of stl (at least with the std::deque representation we have)
-bool symtab::exists_in_block(const std::string& which) const {
-	table::const_reverse_iterator i = tab.rbegin(),
-		end = tab.rend();
-	for (; i != end; ++i) {
-		if (*i == block) {
-			return false;
-		}
-		if (i->name() == which) {
-			return true;
-		}
-	}
-	return false;
+bool symtab::exists_in_block(const string& which) const {
+	table::const_reverse_iterator result = find_if(tab.rbegin(), tab.rend(),
+			_1 == block || bind(&symbol::name, _1) == which);
+	return !(result == tab.rend() || *result == block);
 }
 
 bool symtab::push_item(symbol sym) {
