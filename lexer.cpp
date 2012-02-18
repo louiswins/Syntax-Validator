@@ -16,7 +16,7 @@ namespace {
 void lexer::extract_token() {
 	must_get_token = false;
 	do {
-		discard_whitespace();
+		unsigned back_out = discard_whitespace();
 		int tok = cin.peek();
 		switch (tok) {
 			// One-character tokens
@@ -58,6 +58,9 @@ void lexer::extract_token() {
 			case EOF:
 				_token = invalid_tok;
 				_token_raw = "";
+				// So that empty lines before an EOF report
+				// their error on the line it actually happened.
+				_line_no -= back_out;
 				return;
 			// One- or two-character tokens
 			case '<':

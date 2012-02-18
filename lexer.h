@@ -64,12 +64,15 @@ public:
 	}
 
 private:
-	void discard_whitespace() {
+	unsigned discard_whitespace() {
 		int c;
+		unsigned ret = 0;
 		while ((c = std::cin.peek()) == ' ' || c == '\t' || c == '\n') {
-			if (c == '\n') { ++_line_no; }
+			if (c == '\n') { ++ret; }
 			std::cin.get();
 		}
+		_line_no += ret;
+		return ret;
 	}
 
 	void extract_token();
