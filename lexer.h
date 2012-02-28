@@ -7,6 +7,8 @@
 class lexer {
 public:
 	enum tok_type {
+		invalid_tok,
+
 		amp_tok,
 		arrow_tok,
 		assign_tok,
@@ -29,9 +31,7 @@ public:
 		per_tok,
 		print_tok,
 		rparen_tok,
-		var_tok,
-		
-		invalid_tok
+		var_tok
 	};
 
 	lexer() : _line_no(1), must_get_token(true) {}
