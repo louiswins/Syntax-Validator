@@ -1,31 +1,24 @@
 #include <string>
 #include <algorithm>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include "symtab.h"
 using namespace std;
-using boost::lambda::bind;
-using boost::lambda::_1;
 
-// Easily located using std::find_if and boost::lambda
 const symbol& symtab::find(const string& which) const {
-	static symbol bad_return = symbol("", symbol::undef);
-	table::const_reverse_iterator result = find_if(tab.rbegin(), tab.rend(),
-			bind(&symbol::name, _1) == which);
-	return (result == tab.rend()) ? bad_return : *result;
+	static symbol not_found = symbol(symbol::undef);
+	for (table::const_reverse_iterator i = tab.rbegin(); i != tab.rend(); ++i) {
+		block::const_iterator item = i->find(which);
+		if (item != i->end()) return item->second;
+	}
+	return not_found;
 }
 bool symtab::exists_in_block(const string& which) const {
-	table::const_reverse_iterator result = find_if(tab.rbegin(), tab.rend(),
-			_1 == block || bind(&symbol::name, _1) == which);
-	return !(result == tab.rend() || *result == block);
+	return tab.back().count(which) > 0;
 }
 
-bool symtab::push_item(symbol sym) {
-	if (exists_in_block(sym.name())) {
+bool symtab::add_symbol(const string& name, const symbol& sym) {
+	if (exists_in_block(name)) {
 		return false;
 	}
-	tab.push_back(sym);
+	tab.back().insert(make_pair(name, sym));
 	return true;
 }
-
-const symbol symtab::block = symbol("", symbol::undef);
