@@ -38,42 +38,17 @@ public:
 
 	void getToken() { must_get_token = true; }
 
-	// cin.eof() doesn't return true until you've tried to read a
-	// character and failed.
 	bool hasToken() const { return std::cin.peek() != EOF; }
 
-	tok_type token() {
-		if (must_get_token) {
-			extract_token();
-		}
-		return _token;
-	}
-	const std::string& token_raw() {
-		if (must_get_token) {
-			extract_token();
-		}
-		return _token_raw;
-	}
+	tok_type token();
+	const std::string& token_raw();
 
 	unsigned line_no() const { return _line_no; }
 
-	void flush_line() {
-		while (!std::cin.eof() && std::cin.get() != '\n');
-		++_line_no;
-		must_get_token = true;
-	}
+	void flush_line();
 
 private:
-	unsigned discard_whitespace() {
-		int c;
-		unsigned ret = 0;
-		while ((c = std::cin.peek()) == ' ' || c == '\t' || c == '\n') {
-			if (c == '\n') { ++ret; }
-			std::cin.get();
-		}
-		_line_no += ret;
-		return ret;
-	}
+	unsigned discard_whitespace();
 
 	void extract_token();
 
@@ -82,5 +57,35 @@ private:
 	tok_type _token;
 	bool must_get_token;
 };
+
+
+
+inline lexer::tok_type lexer::token() {
+	if (must_get_token) {
+		extract_token();
+	}
+	return _token;
+}
+inline const std::string& lexer::token_raw() {
+	if (must_get_token) {
+		extract_token();
+	}
+	return _token_raw;
+}
+inline void lexer::flush_line() {
+	while (!std::cin.eof() && std::cin.get() != '\n');
+	++_line_no;
+	must_get_token = true;
+}
+inline unsigned lexer::discard_whitespace() {
+	int c;
+	unsigned ret = 0;
+	while ((c = std::cin.peek()) == ' ' || c == '\t' || c == '\n') {
+		if (c == '\n') { ++ret; }
+		std::cin.get();
+	}
+	_line_no += ret;
+	return ret;
+}
 
 #endif /* LEXER_H */

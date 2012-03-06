@@ -8,7 +8,7 @@
 class parser {
 public:
 	parser() {}
-	parser(const lexer& l) : _l(l) {}
+	parser(const lexer& _l) : l(_l) {}
 
 	void verify_program();
 
@@ -36,8 +36,30 @@ private:
 	bool match(const char *tok);
 	bool match();
 
-	lexer _l;
-	symtab _s;
+	lexer l;
+	symtab s;
 };
+
+
+
+
+
+inline bool parser::is_declaration(lexer::tok_type tok) {
+	return (tok == lexer::var_tok || tok == lexer::const_tok);
+}
+inline bool parser::is_statement(lexer::tok_type tok) {
+	return (tok == lexer::id_tok    ||
+		tok == lexer::print_tok ||
+		tok == lexer::if_tok    ||
+		tok == lexer::loop_tok);
+}
+inline bool parser::is_relop(lexer::tok_type tok) {
+	return (tok == lexer::equal_tok ||
+		tok == lexer::lt_tok    ||
+		tok == lexer::gt_tok    ||
+		tok == lexer::ne_tok    ||
+		tok == lexer::le_tok    ||
+		tok == lexer::ge_tok);
+}
 
 #endif /* PARSER_H */
