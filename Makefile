@@ -11,7 +11,7 @@ clean:
 $(TARGET): $(OBJS)
 	$(CXX) $(LDFLAGS) $(OBJS) -o $@
 
-main.o: parser.h lexer.h symtab.h
+main.o: parser.h
 parser.o: parser.h symtab.h lexer.h
 lexer.o: lexer.h
 symtab.o : symtab.h
